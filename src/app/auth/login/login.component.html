@@ -1,0 +1,45 @@
+<!-- login.component.html -->
+<div class="login-container">
+    <mat-card class="login-card">
+        <mat-card-title class="login-title">Iniciar Sesión</mat-card-title>
+        <mat-card-content>
+            <!-- Formulario reactivo -->
+            <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+
+                <!-- Usuario -->
+                <mat-form-field appearance="outline" class="field">
+                    <mat-label>Nombre de usuario</mat-label>
+                    <input matInput type="text" formControlName="username" placeholder="Ingresa tu nombre de usuario" />
+                    <!-- Mensajes de error -->
+                    <mat-error *ngIf="isInvalidControl('username') && loginForm.get('username')?.errors?.['required']">
+                        El nombre de usuario es obligatorio.
+                    </mat-error>
+                </mat-form-field>
+
+                <!-- Contraseña -->
+                <mat-form-field appearance="outline" class="field">
+                    <mat-label>Contraseña</mat-label>
+                    <input matInput type="password" formControlName="password" placeholder="Ingresa tu contraseña" />
+                    <!-- Mensaje de error -->
+                    <mat-error *ngIf="isInvalidControl('password')">
+                        La contraseña es obligatoria.
+                    </mat-error>
+                </mat-form-field>
+
+                <button mat-raised-button color="primary" type="submit" class="login-button"
+                    [disabled]="loginForm.invalid">
+                    Acceder
+                </button>
+            </form>
+        </mat-card-content>
+
+        <mat-card-actions class="aux-links">
+            <button mat-button routerLink="/auth/register">
+                ¿No tienes cuenta? Regístrate
+            </button>
+            <button mat-button routerLink="/auth/forgot-password">
+                ¿Olvidaste tu contraseña?
+            </button>
+        </mat-card-actions>
+    </mat-card>
+</div>
