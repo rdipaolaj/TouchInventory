@@ -9,13 +9,21 @@ import {
 } from '@angular/forms';
 import { Router } from '@angular/router';
 
-// Módulos de Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { HttpErrorResponse } from '@angular/common/http';
+import { MatSelectModule } from '@angular/material/select';
+
+import { ErrorListSnackComponent } from '../../../components/error-list-snack.component';
+
+import { CreateUserCommand, CreateUserResponse } from './models/register.models';
+import { ApiResponse, ErrorDetail } from '../../shared/models/api-response.model';
+import { RegisterService } from './service/register.service';
 
 @Component({
   standalone: true,
@@ -28,46 +36,91 @@ import { RouterModule } from '@angular/router';
     MatButtonModule,
     MatCardModule,
     MatIconModule,
+    MatSnackBarModule,
     RouterModule,
+    MatSelectModule
   ],
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent {
-
-  // Creamos el form group con validaciones básicas
+  /** Grupo de formularios con validaciones */
   registerForm = new FormGroup({
-    name: new FormControl<string>('', [Validators.required]),
-    email: new FormControl<string>('', [Validators.required, Validators.email]),
-    password: new FormControl<string>('', [Validators.required]),
-    confirmPassword: new FormControl<string>('', [Validators.required]),
+    username: new FormControl<string>('', [
+      Validators.required,
+      Validators.minLength(3)
+    ]),
+    email: new FormControl<string>('', [
+      Validators.required,
+      Validators.email
+    ]),
+    phoneNumber: new FormControl<string>('', [
+      Validators.required,
+      Validators.minLength(7)
+    ]),
+    password: new FormControl<string>('', [
+      Validators.required,
+      Validators.minLength(4)
+    ]),
+    confirmPassword: new FormControl<string>('', [
+      Validators.required
+    ]),
+    userRole: new FormControl<number>(1, [Validators.required])
   }, { validators: [this.passwordsMatchValidator] });
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private registerService: RegisterService,
+    private snackBar: MatSnackBar
+  ) { }
 
   onRegister() {
-    if (this.registerForm.valid) {
-      const { name, email, password, confirmPassword } = this.registerForm.value;
-      console.log('Registrando usuario:', name, email, password, confirmPassword);
-
-      // Aquí normalmente llamas un servicio, por ejemplo:
-      // this.authService.register({ name, email, password }).subscribe(
-      //    (resp) => {
-      //       // Redirigir al login o loguear directamente al usuario
-      //       this.router.navigate(['/auth/login']);
-      //    },
-      //    (err) => console.error(err)
-      // );
-
-      // Como ejemplo: redirigimos al login
-      this.router.navigate(['/auth/login']);
+    if (!this.registerForm.valid) {
+      this.showSnackError('Por favor, corrige los errores en el formulario.');
+      this.registerForm.markAllAsTouched();
+      return;
     }
+
+    const {
+      username,
+      email,
+      phoneNumber,
+      password,
+      userRole
+    } = this.registerForm.value;
+
+    const command: CreateUserCommand = {
+      username: username ?? '',
+      email: email ?? '',
+      phoneNumber: phoneNumber ?? '',
+      password: password ?? '',
+      userRole: userRole ?? 1
+    };
+
+    this.registerService.createUser(command).subscribe({
+      next: (resp: ApiResponse<CreateUserResponse>) => {
+        if (resp.success) {
+          this.showSnackSuccess('¡Usuario creado con éxito!');
+          console.log('Usuario creado, ID:', resp.data.userId);
+          this.router.navigate(['/auth/login']);
+        } else {
+          this.handleServerError(resp.message, resp.errors);
+        }
+      },
+      error: (err: HttpErrorResponse) => {
+        if (err.status === 400 && err.error) {
+          const body = err.error as ApiResponse<null>;
+          console.error('Error 400: ', body);
+          this.handleServerError(body.message, body.errors);
+        } else {
+          console.error('Error de red o del servidor:', err);
+          this.showSnackError('Ha ocurrido un error en el servidor.');
+        }
+      }
+    });
   }
 
-  /**
-   * Validador para comprobar que password y confirmPassword coinciden.
-   * Si no coinciden, se setea un error en el form group.
-   */
+  // Validador contraseñas
   passwordsMatchValidator(form: AbstractControl) {
     const password = form.get('password')?.value;
     const confirm = form.get('confirmPassword')?.value;
@@ -82,20 +135,40 @@ export class RegisterComponent {
     return !!control && control.invalid && (control.dirty || control.touched);
   }
 
-  // Para mostrar error de passwordsMismatch
   hasPasswordMismatchError(): boolean {
-    // 1. Verificamos si el formGroup tiene el error global
     const mismatch = this.registerForm.hasError('passwordsMismatch');
-  
-    // 2. Obtenemos los controles
     const passControl = this.registerForm.get('password');
     const confirmControl = this.registerForm.get('confirmPassword');
-  
-    // 3. Verificamos si están “sucios” o “tocados”
     const passTouched = passControl?.dirty || passControl?.touched;
     const confirmTouched = confirmControl?.dirty || confirmControl?.touched;
-  
-    // 4. Retornamos una expresión 100% booleana
     return mismatch && !!passTouched && !!confirmTouched;
+  }
+
+  // Mensajes
+  private showSnackSuccess(msg: string) {
+    this.snackBar.open(msg, 'Cerrar', {
+      duration: 3000,
+      panelClass: ['success-snackbar']
+    });
+  }
+
+  private showSnackError(msg: string) {
+    this.snackBar.open(msg, 'Cerrar', {
+      duration: 5000,
+      panelClass: ['error-snackbar']
+    });
+  }
+
+  private handleServerError(serverMessage: string, errors: ErrorDetail[] = []) {
+    const errorTexts = errors.map(err => err.description);
+
+    this.snackBar.openFromComponent(ErrorListSnackComponent, {
+      data: {
+        title: serverMessage || 'Error en la validación de usuario.',
+        errorDetails: errorTexts
+      },
+      panelClass: ['error-snackbar'],
+      duration: 8000
+    });
   }
 }
