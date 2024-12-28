@@ -5,59 +5,57 @@ import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { authGuard } from './auth/auth.guard';
+
+// Importar (o lazy load) los componentes de productos y usuario
 import { ProductListComponent } from './products/product-list/product-list.component';
 import { ProductFormComponent } from './products/product-form/product-form.component';
 import { ProfileComponent } from './user/profile/profile.component';
 import { ProfileEditComponent } from './user/profile-edit/profile-edit.component';
 
-// Importas el authGuard
-import { authGuard } from './auth/auth.guard';
+// Un “Home” dentro del dashboard (opcional):
+import { HomeDashboardComponent } from './dashboard/home-dashboard.component';
 
 export const routes: Routes = [
-    // ========= Redirección por defecto al Login =========
-    { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
+  // Rutas públicas
+  { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
+  { path: 'auth/login', component: LoginComponent },
+  { path: 'auth/register', component: RegisterComponent },
+  { path: 'auth/forgot-password', component: ForgotPasswordComponent },
 
-    // ============= Rutas de Autenticación ==============
-    { path: 'auth/login', component: LoginComponent },
-    { path: 'auth/register', component: RegisterComponent },
-    { path: 'auth/forgot-password', component: ForgotPasswordComponent },
+  // RUTA PADRE "dashboard" PROTEGIDA
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [authGuard],
+    children: [
+      // Por defecto, al entrar a /dashboard redirigimos a /dashboard/home
+      { path: '', redirectTo: 'home', pathMatch: 'full' },
 
-    // =============== Rutas de Dashboard (protegido) ================
-    {
-        path: 'dashboard',
-        component: DashboardComponent,
-        canActivate: [authGuard]
-    },
+      // “Home” interno del dashboard
+      { path: 'home', component: HomeDashboardComponent },
 
-    // =============== Rutas de Productos (protegidas) ===============
-    {
-        path: 'products/list',
-        component: ProductListComponent,
-        canActivate: [authGuard]
-    },
-    {
-        path: 'products/create',
-        component: ProductFormComponent,
-        canActivate: [authGuard]
-    },
-    {
-        path: 'products/edit/:id',
-        component: ProductFormComponent,
-        canActivate: [authGuard]
-    },
+      // Sub-rutas de productos
+      {
+        path: 'products',
+        children: [
+          { path: 'list', component: ProductListComponent },
+          { path: 'create', component: ProductFormComponent },
+          { path: 'edit/:id', component: ProductFormComponent }
+        ]
+      },
 
-    // =============== Rutas de Usuario (protegidas) =================
-    {
-        path: 'user/profile',
-        component: ProfileComponent,
-        canActivate: [authGuard]
-    },
-    {
-        path: 'user/profile-edit',
-        component: ProfileEditComponent,
-        canActivate: [authGuard]
-    },
+      // Sub-rutas de usuario
+      {
+        path: 'user',
+        children: [
+          { path: 'profile', component: ProfileComponent },
+          { path: 'profile-edit', component: ProfileEditComponent }
+        ]
+      }
+    ]
+  },
 
-    // ======== Wildcard (cualquier ruta no definida) =====
-    { path: '**', redirectTo: 'auth/login' },
+  // Wildcard
+  { path: '**', redirectTo: 'auth/login' },
 ];
