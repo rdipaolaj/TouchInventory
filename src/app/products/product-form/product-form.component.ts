@@ -1,38 +1,96 @@
+//src/app/products/product-form/product-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { ProductService } from '../services/product.service';
+import { CreateProductCommand, UpdateProductCommand } from '../models/product.models';
 
 @Component({
   standalone: true,
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.css'],
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+  ],
 })
 export class ProductFormComponent implements OnInit {
+  productForm!: FormGroup;
   productId: number | null = null;
-  name: string = '';
-  price: number = 0;
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private productService: ProductService
+  ) { }
 
   ngOnInit() {
+    this.productForm = this.fb.group({
+      name: ['', Validators.required],
+      description: ['', Validators.required],
+      price: [0, [Validators.required, Validators.min(0)]],
+      quantity: [0, [Validators.required, Validators.min(0)]],
+      category: ['', Validators.required],
+    });
+
     this.productId = Number(this.route.snapshot.paramMap.get('id'));
     if (this.productId) {
-      // Simular carga de datos
-      this.name = 'Producto Ejemplo';
-      this.price = 100;
+      this.loadProductData();
     }
   }
 
+  loadProductData() {
+    this.productService.listProducts().subscribe({
+      next: (response) => {
+        const product = response.data.find((p) => p.id === this.productId);
+        if (product) {
+          this.productForm.patchValue({
+            name: product.nombre,
+            description: product.descripcion,
+            price: product.precio,
+            quantity: product.cantidad,
+            category: product.categoria,
+          });
+        }
+      },
+      error: (err) => console.error('Error al cargar producto:', err),
+    });
+  }
+
   onSubmit() {
-    if (this.productId) {
-      console.log('Actualizando producto:', this.productId, this.name, this.price);
-    } else {
-      console.log('Creando producto:', this.name, this.price);
+    if (this.productForm.valid) {
+      const formData = this.productForm.value;
+      if (this.productId) {
+        const updateCommand: UpdateProductCommand = {
+          id: this.productId,
+          ...formData,
+        };
+
+        this.productService.updateProduct(updateCommand).subscribe({
+          next: () => this.router.navigate(['/dashboard/products/list']),
+          error: (err) => console.error('Error al actualizar producto:', err),
+        });
+      } else {
+        const createCommand: CreateProductCommand = { ...formData };
+
+        this.productService.createProduct(createCommand).subscribe({
+          next: () => this.router.navigate(['/dashboard/products/list']),
+          error: (err) => console.error('Error al crear producto:', err),
+        });
+      }
     }
-    // Redireccionar a la lista
-    this.router.navigate(['/products/list']);
+  }
+
+  onCancel(): void {
+    this.router.navigate(['/dashboard/products/list']);
   }
 }

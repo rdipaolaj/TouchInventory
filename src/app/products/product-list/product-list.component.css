@@ -1,0 +1,94 @@
+/* src/app/products/product-list/product-list.component.css */
+:host {
+    display: block;
+    margin: 16px;
+}
+
+.header-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.loading {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 18px;
+    font-weight: bold;
+    color: #666;
+}
+
+mat-card {
+    padding: 16px;
+}
+
+mat-table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+}
+
+mat-header-cell,
+mat-cell {
+    text-align: left;
+    padding: 8px;
+    word-wrap: break-word;
+}
+
+mat-header-cell {
+    font-weight: bold;
+    background-color: #f5f5f5;
+}
+
+.mat-elevation-z8 {
+    margin-top: 16px;
+}
+
+.no-products {
+    text-align: center;
+    margin: 20px;
+    color: gray;
+    font-style: italic;
+}
+
+.mobile-view {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    mat-table {
+        display: none;
+    }
+
+    .mobile-view {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .responsive-card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .responsive-card .field {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .responsive-card .field label {
+        font-weight: bold;
+        margin-right: 8px;
+    }
+
+    .responsive-card .actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 16px;
+    }
+}

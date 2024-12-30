@@ -1,24 +1,107 @@
+<!-- src/app/products/product-list/product-list.component.html -->
 <h2>Lista de Productos</h2>
-<a routerLink="/products/create">Crear nuevo producto</a>
+<div class="header-actions">
+  <a mat-raised-button color="primary" routerLink="/dashboard/products/create">Crear nuevo producto</a>
+</div>
 
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nombre</th>
-      <th>Precio</th>
-      <th>Acciones</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr *ngFor="let product of products">
-      <td>{{ product.id }}</td>
-      <td>{{ product.name }}</td>
-      <td>{{ product.price }}</td>
-      <td>
-        <!-- <button [routerLink]="['/products/edit', product.id]">Editar</button> -->
-        <button (click)="onDelete(product.id)">Eliminar</button>
-      </td>
-    </tr>
-  </tbody>
-</table>
+<div *ngIf="loading" class="loading">Cargando productos...</div>
+
+<mat-card *ngIf="!loading">
+  <!-- Tabla para pantallas grandes -->
+  <mat-table [dataSource]="products" class="mat-elevation-z8 desktop-view">
+    <!-- ID -->
+    <ng-container matColumnDef="id">
+      <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
+      <mat-cell *matCellDef="let product"> {{ product.id }} </mat-cell>
+    </ng-container>
+
+    <!-- Nombre -->
+    <ng-container matColumnDef="nombre">
+      <mat-header-cell *matHeaderCellDef> Nombre </mat-header-cell>
+      <mat-cell *matCellDef="let product"> {{ product.nombre }} </mat-cell>
+    </ng-container>
+
+    <!-- Descripción -->
+    <ng-container matColumnDef="descripcion">
+      <mat-header-cell *matHeaderCellDef> Descripción </mat-header-cell>
+      <mat-cell *matCellDef="let product"> {{ product.descripcion }} </mat-cell>
+    </ng-container>
+
+    <!-- Precio -->
+    <ng-container matColumnDef="precio">
+      <mat-header-cell *matHeaderCellDef> Precio </mat-header-cell>
+      <mat-cell *matCellDef="let product"> {{ product.precio | currency }} </mat-cell>
+    </ng-container>
+
+    <!-- Cantidad -->
+    <ng-container matColumnDef="cantidad">
+      <mat-header-cell *matHeaderCellDef> Cantidad </mat-header-cell>
+      <mat-cell *matCellDef="let product"> {{ product.cantidad }} </mat-cell>
+    </ng-container>
+
+    <!-- Categoría -->
+    <ng-container matColumnDef="categoria">
+      <mat-header-cell *matHeaderCellDef> Categoría </mat-header-cell>
+      <mat-cell *matCellDef="let product"> {{ product.categoria }} </mat-cell>
+    </ng-container>
+
+    <!-- Acciones -->
+    <ng-container matColumnDef="acciones">
+      <mat-header-cell *matHeaderCellDef> Acciones </mat-header-cell>
+      <mat-cell *matCellDef="let product">
+        <button mat-raised-button color="accent" [routerLink]="['/dashboard/products/edit', product.id]">
+          Editar
+        </button>
+        <button mat-raised-button color="warn" (click)="onDelete(product.id)">
+          Eliminar
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <!-- Header y Filas -->
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
+
+  <!-- Tarjetas para pantallas pequeñas -->
+  <div class="responsive-cards mobile-view">
+    <div class="responsive-card" *ngFor="let product of products">
+      <div class="field">
+        <label>ID:</label>
+        <span>{{ product.id }}</span>
+      </div>
+      <div class="field">
+        <label>Nombre:</label>
+        <span>{{ product.nombre }}</span>
+      </div>
+      <div class="field">
+        <label>Descripción:</label>
+        <span>{{ product.descripcion }}</span>
+      </div>
+      <div class="field">
+        <label>Precio:</label>
+        <span>{{ product.precio | currency }}</span>
+      </div>
+      <div class="field">
+        <label>Cantidad:</label>
+        <span>{{ product.cantidad }}</span>
+      </div>
+      <div class="field">
+        <label>Categoría:</label>
+        <span>{{ product.categoria }}</span>
+      </div>
+      <div class="actions">
+        <button mat-raised-button color="accent" [routerLink]="['/dashboard/products/edit', product.id]">
+          Editar
+        </button>
+        <button mat-raised-button color="warn" (click)="onDelete(product.id)">
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!products.length" class="no-products">
+    No hay productos disponibles.
+  </div>
+</mat-card>

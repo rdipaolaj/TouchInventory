@@ -7,13 +7,11 @@ import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { authGuard } from './auth/auth.guard';
 
-// Importar (o lazy load) los componentes de productos y usuario
 import { ProductListComponent } from './products/product-list/product-list.component';
 import { ProductFormComponent } from './products/product-form/product-form.component';
 import { ProfileComponent } from './user/profile/profile.component';
 import { ProfileEditComponent } from './user/profile-edit/profile-edit.component';
 
-// Un “Home” dentro del dashboard (opcional):
 import { HomeDashboardComponent } from './dashboard/home-dashboard.component';
 
 export const routes: Routes = [
@@ -29,7 +27,7 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [authGuard],
     children: [
-      // Por defecto, al entrar a /dashboard redirigimos a /dashboard/home
+      // Al entrar a /dashboard se redirige a /dashboard/home
       { path: '', redirectTo: 'home', pathMatch: 'full' },
 
       // “Home” interno del dashboard

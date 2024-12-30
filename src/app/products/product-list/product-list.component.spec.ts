@@ -1,3 +1,4 @@
+// src/app/products/product-list/product-list.component.spec.ts
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProductListComponent } from './product-list.component';

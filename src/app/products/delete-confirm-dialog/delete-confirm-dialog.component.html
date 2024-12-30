@@ -1,0 +1,7 @@
+<!-- src/app/products/delete-confirm-dialog/delete-confirm-dialog.component.html -->
+<h2 mat-dialog-title>Eliminar Producto</h2>
+<mat-dialog-content>¿Estás seguro de que deseas eliminar este producto?</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-stroked-button color="primary" (click)="onCancel()">Cancelar</button>
+    <button mat-raised-button color="warn" (click)="onConfirm()">Eliminar</button>
+</mat-dialog-actions>

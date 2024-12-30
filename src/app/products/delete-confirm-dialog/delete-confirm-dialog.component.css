@@ -1,0 +1,5 @@
+/* src/app/products/delete-confirm-dialog/delete-confirm-dialog.component.css */
+:host {
+    display: block;
+    padding: 16px;
+}

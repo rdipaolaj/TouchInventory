@@ -1,3 +1,4 @@
+// src/app/products/product-form/product-form.component.spec.ts
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProductFormComponent } from './product-form.component';
