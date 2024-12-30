@@ -131,5 +131,36 @@ export class ProductListComponent implements OnInit {
     });
   }
 
+  generateReport() {
+    this.productService.generateProductReport().subscribe({
+      next: (response) => {
+        const now = new Date();
+        const formattedDate = `${now.getDate().toString().padStart(2, '0')}-${(now.getMonth() + 1)
+          .toString()
+          .padStart(2, '0')}-${now.getFullYear()}_${now
+            .getHours()
+            .toString()
+            .padStart(2, '0')}-${now.getMinutes()
+              .toString()
+              .padStart(2, '0')}-${now.getSeconds().toString().padStart(2, '0')}`;
 
+        const fileName = `Reporte_Productos_${formattedDate}.pdf`;
+
+        console.log('Nombre del archivo generado:', fileName);
+
+        const blob = new Blob([response.body!], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        console.error('Error al generar el reporte:', err);
+      },
+    });
+  }
 }
