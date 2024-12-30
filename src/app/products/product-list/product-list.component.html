@@ -1,7 +1,12 @@
 <!-- src/app/products/product-list/product-list.component.html -->
 <h2>Lista de Productos</h2>
 <div class="header-actions">
-  <a mat-raised-button color="primary" routerLink="/dashboard/products/create">Crear nuevo producto</a>
+  <a mat-raised-button color="primary" routerLink="/dashboard/products/create">
+    Crear Producto
+  </a>
+  <button mat-raised-button color="warn" [disabled]="!hasLowStock" (click)="sendNotifications()">
+    Enviar Notificación
+  </button>
 </div>
 
 <div *ngIf="loading" class="loading">Cargando productos...</div>
@@ -10,10 +15,10 @@
   <!-- Tabla para pantallas grandes -->
   <mat-table [dataSource]="products" class="mat-elevation-z8 desktop-view">
     <!-- ID -->
-    <ng-container matColumnDef="id">
+    <!-- <ng-container matColumnDef="id">
       <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
       <mat-cell *matCellDef="let product"> {{ product.id }} </mat-cell>
-    </ng-container>
+    </ng-container> -->
 
     <!-- Nombre -->
     <ng-container matColumnDef="nombre">
@@ -49,12 +54,14 @@
     <ng-container matColumnDef="acciones">
       <mat-header-cell *matHeaderCellDef> Acciones </mat-header-cell>
       <mat-cell *matCellDef="let product">
-        <button mat-raised-button color="accent" [routerLink]="['/dashboard/products/edit', product.id]">
-          Editar
-        </button>
-        <button mat-raised-button color="warn" (click)="onDelete(product.id)">
-          Eliminar
-        </button>
+        <div class="table-actions">
+          <button mat-raised-button color="accent" [routerLink]="['/dashboard/products/edit', product.id]">
+            Editar
+          </button>
+          <button mat-raised-button color="warn" (click)="onDelete(product.id)">
+            Eliminar
+          </button>
+        </div>
       </mat-cell>
     </ng-container>
 

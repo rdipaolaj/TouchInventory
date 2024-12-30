@@ -10,6 +10,7 @@ import { ApiResponse } from '../../shared/models/api-response.model';
 })
 export class ProductService {
   private baseUrl = 'http://localhost:5212/touch/product/api/v1/Product';
+  private notificationsUrl = 'http://localhost:5212/touch/notifications/api/v1/Notification';
 
   constructor(private http: HttpClient) {}
 
@@ -27,5 +28,9 @@ export class ProductService {
 
   deleteProduct(productId: number): Observable<ApiResponse<boolean>> {
     return this.http.delete<ApiResponse<boolean>>(`${this.baseUrl}/delete-product/${productId}`);
+  }
+
+  sendLowStockNotifications(): Observable<ApiResponse<boolean>> {
+    return this.http.post<ApiResponse<boolean>>(`${this.notificationsUrl}/force-notifications`, {});
   }
 }

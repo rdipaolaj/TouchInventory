@@ -69,18 +69,34 @@ export class ProductFormComponent implements OnInit {
   onSubmit() {
     if (this.productForm.valid) {
       const formData = this.productForm.value;
+      console.log('Datos enviados al backend:', formData);
+
       if (this.productId) {
         const updateCommand: UpdateProductCommand = {
           id: this.productId,
-          ...formData,
+          nombre: formData.name,
+          descripcion: formData.description,
+          precio: formData.price,
+          cantidad: formData.quantity,
+          categoria: formData.category,
         };
+
+        console.log('Comando de actualización:', updateCommand);
 
         this.productService.updateProduct(updateCommand).subscribe({
           next: () => this.router.navigate(['/dashboard/products/list']),
           error: (err) => console.error('Error al actualizar producto:', err),
         });
       } else {
-        const createCommand: CreateProductCommand = { ...formData };
+        const createCommand: CreateProductCommand = {
+          nombre: formData.name,
+          descripcion: formData.description,
+          precio: formData.price,
+          cantidad: formData.quantity,
+          categoria: formData.category,
+        };
+
+        console.log('Comando de creación:', createCommand);
 
         this.productService.createProduct(createCommand).subscribe({
           next: () => this.router.navigate(['/dashboard/products/list']),
