@@ -6,10 +6,13 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { FormsModule } from '@angular/forms';
 import { ProductResponse } from '../models/product.models';
 import { ProductService } from '../services/product.service';
 import { DeleteConfirmDialogComponent } from '../delete-confirm-dialog/delete-confirm-dialog.component';
 import { NotificationDialogComponent } from '../notification-dialog/notification-dialog.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   standalone: true,
@@ -23,10 +26,15 @@ import { NotificationDialogComponent } from '../notification-dialog/notification
     MatButtonModule,
     MatCardModule,
     MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
   ],
 })
 export class ProductListComponent implements OnInit {
   products: ProductResponse[] = [];
+  filteredProducts: ProductResponse[] = [];
+  searchQuery: string = '';
   loading: boolean = false;
   hasLowStock: boolean = false;
   displayedColumns: string[] = [ /*'id', */'nombre', 'descripcion', 'precio', 'cantidad', 'categoria', 'acciones'];
@@ -41,8 +49,11 @@ export class ProductListComponent implements OnInit {
     this.loading = true;
     this.productService.listProducts().subscribe({
       next: (response) => {
+        console.log('Respuesta del servicio:', response);
+
         if (response.success) {
           this.products = response.data;
+          this.filteredProducts = [...this.products];
           this.hasLowStock = this.products.some(product => product.cantidad < 5);
         } else {
           console.error('Error al obtener la lista de productos:', response.message);
@@ -54,6 +65,16 @@ export class ProductListComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  applyFilter() {
+    const query = this.searchQuery.toLowerCase();
+
+    this.filteredProducts = this.products.filter(
+      (product) =>
+        product.nombre.toLowerCase().includes(query) ||
+        product.categoria.toLowerCase().includes(query)
+    );
   }
 
   sendNotifications() {

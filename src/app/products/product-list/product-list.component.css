@@ -11,6 +11,16 @@
     margin-bottom: 16px;
 }
 
+.search-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.search-bar mat-form-field {
+    flex: 1;
+}
+
 .table-actions {
     display: flex;
     gap: 8px;

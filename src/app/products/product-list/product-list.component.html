@@ -9,17 +9,19 @@
   </button>
 </div>
 
+<!-- Buscador -->
+<div class="search-bar">
+  <mat-form-field appearance="outline">
+    <mat-label>Buscar</mat-label>
+    <input matInput [(ngModel)]="searchQuery" (input)="applyFilter()">
+  </mat-form-field>
+</div>
+
 <div *ngIf="loading" class="loading">Cargando productos...</div>
 
 <mat-card *ngIf="!loading">
   <!-- Tabla para pantallas grandes -->
-  <mat-table [dataSource]="products" class="mat-elevation-z8 desktop-view">
-    <!-- ID -->
-    <!-- <ng-container matColumnDef="id">
-      <mat-header-cell *matHeaderCellDef> ID </mat-header-cell>
-      <mat-cell *matCellDef="let product"> {{ product.id }} </mat-cell>
-    </ng-container> -->
-
+  <mat-table [dataSource]="filteredProducts" class="mat-elevation-z8 desktop-view">
     <!-- Nombre -->
     <ng-container matColumnDef="nombre">
       <mat-header-cell *matHeaderCellDef> Nombre </mat-header-cell>
@@ -72,7 +74,7 @@
 
   <!-- Tarjetas para pantallas pequeñas -->
   <div class="responsive-cards mobile-view">
-    <div class="responsive-card" *ngFor="let product of products">
+    <div class="responsive-card" *ngFor="let product of filteredProducts">
       <div class="field">
         <label>ID:</label>
         <span>{{ product.id }}</span>
@@ -108,7 +110,7 @@
     </div>
   </div>
 
-  <div *ngIf="!products.length" class="no-products">
+  <div *ngIf="!filteredProducts.length" class="no-products">
     No hay productos disponibles.
   </div>
 </mat-card>
