@@ -1,11 +1,12 @@
 // src/app/app.routes.ts
 import { Routes } from '@angular/router';
-
+import { AccessDeniedComponent } from './shared/access-denied/access-denied.component';
 import { LoginComponent } from './auth/login/login.component';
 import { RegisterComponent } from './auth/register/register.component';
 import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { authGuard } from './auth/auth.guard';
+import { roleGuard } from './auth/role.guard';
 
 import { ProductListComponent } from './products/product-list/product-list.component';
 import { ProductFormComponent } from './products/product-form/product-form.component';
@@ -20,6 +21,9 @@ export const routes: Routes = [
   { path: 'auth/login', component: LoginComponent },
   { path: 'auth/register', component: RegisterComponent },
   { path: 'auth/forgot-password', component: ForgotPasswordComponent },
+  
+  // RUTA DE ACCESO DENEGADO
+  { path: 'access-denied', component: AccessDeniedComponent },
 
   // RUTA PADRE "dashboard" PROTEGIDA
   {
@@ -27,19 +31,18 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [authGuard],
     children: [
-      // Al entrar a /dashboard se redirige a /dashboard/home
       { path: '', redirectTo: 'home', pathMatch: 'full' },
 
-      // “Home” interno del dashboard
+      // Home interno del dashboard
       { path: 'home', component: HomeDashboardComponent },
 
       // Sub-rutas de productos
       {
         path: 'products',
         children: [
-          { path: 'list', component: ProductListComponent },
-          { path: 'create', component: ProductFormComponent },
-          { path: 'edit/:id', component: ProductFormComponent }
+          { path: 'list', component: ProductListComponent, canActivate: [roleGuard], data: { roles: [1, 2] } }, // Admin y empleados
+          { path: 'create', component: ProductFormComponent, canActivate: [roleGuard], data: { roles: [1] } }, // Solo administradores
+          { path: 'edit/:id', component: ProductFormComponent, canActivate: [roleGuard], data: { roles: [1] } } // Solo administradores
         ]
       },
 
@@ -47,8 +50,8 @@ export const routes: Routes = [
       {
         path: 'user',
         children: [
-          { path: 'profile', component: ProfileComponent },
-          { path: 'profile-edit', component: ProfileEditComponent }
+          { path: 'profile', component: ProfileComponent, canActivate: [roleGuard], data: { roles: [1, 2] } }, // Admin y empleados
+          { path: 'profile-edit', component: ProfileEditComponent, canActivate: [roleGuard], data: { roles: [1] } } // Solo administradores
         ]
       }
     ]

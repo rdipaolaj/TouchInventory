@@ -37,12 +37,24 @@ export class ProductListComponent implements OnInit {
   searchQuery: string = '';
   loading: boolean = false;
   hasLowStock: boolean = false;
-  displayedColumns: string[] = [ /*'id', */'nombre', 'descripcion', 'precio', 'cantidad', 'categoria', 'acciones'];
+  displayedColumns: string[] = ['nombre', 'descripcion', 'precio', 'cantidad', 'categoria', 'acciones'];
+  isAdmin: boolean = false;
 
   constructor(private productService: ProductService, private dialog: MatDialog) { }
 
   ngOnInit() {
     this.loadProducts();
+    this.checkUserRole();
+  }
+
+  checkUserRole() {
+    const rawUserRole = localStorage.getItem('userRoleValue');
+    const userRole = parseInt(rawUserRole || '0', 10);
+
+    this.isAdmin = userRole === 1;
+    this.displayedColumns = this.isAdmin
+      ? ['nombre', 'descripcion', 'precio', 'cantidad', 'categoria', 'acciones']
+      : ['nombre', 'descripcion', 'precio', 'cantidad', 'categoria'];
   }
 
   loadProducts() {

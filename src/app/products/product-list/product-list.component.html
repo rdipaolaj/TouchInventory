@@ -1,13 +1,14 @@
 <!-- src/app/products/product-list/product-list.component.html -->
 <h2>Lista de Productos</h2>
 <div class="header-actions">
-  <a mat-raised-button color="primary" routerLink="/dashboard/products/create">
+  <!-- Crear Producto (Solo para administradores) -->
+  <a *ngIf="isAdmin" mat-raised-button color="primary" routerLink="/dashboard/products/create">
     Crear Producto
   </a>
   <button mat-raised-button color="warn" [disabled]="!hasLowStock" (click)="sendNotifications()">
     Enviar Notificación
   </button>
-  <button mat-raised-button color="accent" (click)="generateReport()">
+  <button *ngIf="isAdmin" mat-raised-button color="accent" (click)="generateReport()">
     Generar Reporte
   </button>
 </div>
@@ -55,8 +56,8 @@
       <mat-cell *matCellDef="let product"> {{ product.categoria }} </mat-cell>
     </ng-container>
 
-    <!-- Acciones -->
-    <ng-container matColumnDef="acciones">
+    <!-- Acciones (Solo para administradores) -->
+    <ng-container matColumnDef="acciones" *ngIf="isAdmin">
       <mat-header-cell *matHeaderCellDef> Acciones </mat-header-cell>
       <mat-cell *matCellDef="let product">
         <div class="table-actions">
@@ -79,10 +80,6 @@
   <div class="responsive-cards mobile-view">
     <div class="responsive-card" *ngFor="let product of filteredProducts">
       <div class="field">
-        <label>ID:</label>
-        <span>{{ product.id }}</span>
-      </div>
-      <div class="field">
         <label>Nombre:</label>
         <span>{{ product.nombre }}</span>
       </div>
@@ -101,14 +98,6 @@
       <div class="field">
         <label>Categoría:</label>
         <span>{{ product.categoria }}</span>
-      </div>
-      <div class="actions">
-        <button mat-raised-button color="accent" [routerLink]="['/dashboard/products/edit', product.id]">
-          Editar
-        </button>
-        <button mat-raised-button color="warn" (click)="onDelete(product.id)">
-          Eliminar
-        </button>
       </div>
     </div>
   </div>
